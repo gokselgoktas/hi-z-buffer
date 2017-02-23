@@ -1,0 +1,217 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+
+using UnityEngine;
+using UnityEngine.Rendering;
+
+public class HiZBuffer : MonoBehaviour
+{
+    private enum Pass
+    {
+        Resolve,
+        Reduce,
+        Blit
+    }
+
+    private Shader m_Shader;
+    public Shader shader
+    {
+        get
+        {
+            if (m_Shader == null)
+                m_Shader = Shader.Find("Hidden/Hi-Z Buffer");
+
+            return m_Shader;
+        }
+    }
+    private Material m_Material;
+    public Material material
+    {
+        get
+        {
+            if (m_Material == null)
+            {
+                if (shader == null || shader.isSupported == false)
+                    return null;
+
+                m_Material = new Material(shader);
+            }
+
+            return m_Material;
+        }
+    }
+
+    private Camera m_Camera;
+    public Camera camera_
+    {
+        get
+        {
+            if (m_Camera == null)
+                m_Camera = GetComponent<Camera>();
+
+            return m_Camera;
+        }
+    }
+
+    private Mesh m_Quad;
+    private Mesh quad
+    {
+        get
+        {
+            if (m_Quad == null)
+            {
+                Vector3[] vertices = new Vector3[4]
+                {
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, -1.0f, 0.0f),
+                    new Vector3(-1.0f, 1.0f, 0.0f),
+                    new Vector3(-1.0f, -1.0f, 0.0f),
+                };
+
+                Vector2[] uv = new Vector2[]
+                {
+                    new Vector2(1, 0),
+                    new Vector2(1, 1),
+                    new Vector2(0, 0),
+                    new Vector2(0, 1),
+                };
+
+                int[] indices = new int[6] { 0, 1, 2, 2, 1, 3 };
+
+                m_Quad = new Mesh();
+                m_Quad.vertices = vertices;
+                m_Quad.uv = uv;
+                m_Quad.triangles = indices;
+            }
+
+            return m_Quad;
+        }
+    }
+
+    private RenderTexture m_HiZ;
+    public RenderTexture texture
+    {
+        get
+        {
+            return m_HiZ;
+        }
+    }
+
+    private int m_LevelCount = 0;
+    public int levelCount
+    {
+        get
+        {
+            return m_LevelCount;
+        }
+    }
+
+    private CommandBuffer m_CommandBuffer;
+    private CameraEvent m_CameraEvent = CameraEvent.BeforeReflections;
+
+    private int m_Temporary;
+    private int[] m_Temporaries;
+
+    void OnEnable()
+    {
+        camera_.depthTextureMode = DepthTextureMode.Depth;
+
+        m_Temporary = Shader.PropertyToID("_Temporary");
+    }
+
+    void OnDisable()
+    {
+        if (camera_ != null)
+        {
+            if (m_CommandBuffer != null)
+            {
+                camera_.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
+                m_CommandBuffer = null;
+            }
+        }
+
+        if (m_HiZ != null)
+        {
+            m_HiZ.Release();
+            m_HiZ = null;
+        }
+    }
+
+    void OnPreRender()
+    {
+        int width = camera_.pixelWidth;
+        int height = camera_.pixelHeight;
+
+        m_LevelCount = (int) Mathf.Floor(Mathf.Log(Mathf.Max(width, height), 2f));
+
+        bool isCommandBufferInvalid = false;
+
+        if (m_LevelCount == 0)
+            return;
+
+        if (m_HiZ == null || (m_HiZ.width != width || m_HiZ.height != height))
+        {
+            if (m_HiZ != null)
+                m_HiZ.Release();
+
+            m_HiZ = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+            m_HiZ.filterMode = FilterMode.Point;
+
+            m_HiZ.useMipMap = true;
+            m_HiZ.autoGenerateMips = false;
+
+            m_HiZ.Create();
+
+            m_HiZ.hideFlags = HideFlags.HideAndDontSave;
+
+            isCommandBufferInvalid = true;
+        }
+
+        if (m_CommandBuffer == null || isCommandBufferInvalid == true)
+        {
+            m_Temporaries = new int[m_LevelCount];
+
+            if (m_CommandBuffer != null)
+                camera_.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
+
+            m_CommandBuffer = new CommandBuffer();
+            m_CommandBuffer.name = "Hi-Z Buffer";
+
+            RenderTargetIdentifier id = new RenderTargetIdentifier(m_HiZ);
+
+            m_CommandBuffer.Blit(BuiltinRenderTextureType.ResolvedDepth, id, material, (int) Pass.Resolve);
+
+            for (int i = 0; i < m_LevelCount; ++i)
+            {
+                m_Temporaries[i] = Shader.PropertyToID("_09659d57_Temporaries" + i.ToString());
+
+                width >>= 1;
+                height >>= 1;
+
+                if (width == 0)
+                    width = 1;
+
+                if (height == 0)
+                    height = 1;
+
+                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], width, height, 0, FilterMode.Point, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+
+                if (i == 0)
+                    m_CommandBuffer.Blit(id, m_Temporaries[0], material, (int) Pass.Reduce);
+                else
+                    m_CommandBuffer.Blit(m_Temporaries[i - 1], m_Temporaries[i], material, (int) Pass.Reduce);
+
+                m_CommandBuffer.SetRenderTarget(id, i + 1);
+                m_CommandBuffer.SetGlobalTexture(m_Temporary, m_Temporaries[i]);
+                m_CommandBuffer.DrawMesh(quad, Matrix4x4.identity, material, 0, (int) Pass.Blit, null);
+
+                if (i >= 1)
+                    m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[i - 1]);
+            }
+
+            m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[m_LevelCount - 1]);
+
+            camera_.AddCommandBuffer(m_CameraEvent, m_CommandBuffer);
+        }
+    }
+}
