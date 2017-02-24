@@ -102,7 +102,10 @@ public class HiZBuffer : MonoBehaviour
     {
         get
         {
-            return m_LevelCount;
+            if (m_HiZ == null)
+                return 0;
+
+            return 1 + m_LevelCount;
         }
     }
 
