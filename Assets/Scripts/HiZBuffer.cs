@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+[RequireComponent(typeof (Camera))]
 public class HiZBuffer : MonoBehaviour
 {
     private enum Pass
