@@ -43,7 +43,7 @@ public class HiZBuffer : MonoBehaviour
     }
 
     private Camera m_Camera;
-    public Camera camera_
+    public new Camera camera
     {
         get
         {
@@ -118,18 +118,18 @@ public class HiZBuffer : MonoBehaviour
 
     void OnEnable()
     {
-        camera_.depthTextureMode = DepthTextureMode.Depth;
+        camera.depthTextureMode = DepthTextureMode.Depth;
 
         m_Temporary = Shader.PropertyToID("_Temporary");
     }
 
     void OnDisable()
     {
-        if (camera_ != null)
+        if (camera != null)
         {
             if (m_CommandBuffer != null)
             {
-                camera_.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
+                camera.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
                 m_CommandBuffer = null;
             }
         }
@@ -143,8 +143,8 @@ public class HiZBuffer : MonoBehaviour
 
     void OnPreRender()
     {
-        int width = camera_.pixelWidth;
-        int height = camera_.pixelHeight;
+        int width = camera.pixelWidth;
+        int height = camera.pixelHeight;
 
         m_LevelCount = (int) Mathf.Floor(Mathf.Log(Mathf.Max(width, height), 2f));
 
@@ -176,7 +176,7 @@ public class HiZBuffer : MonoBehaviour
             m_Temporaries = new int[m_LevelCount];
 
             if (m_CommandBuffer != null)
-                camera_.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
+                camera.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
 
             m_CommandBuffer = new CommandBuffer();
             m_CommandBuffer.name = "Hi-Z Buffer";
@@ -215,7 +215,7 @@ public class HiZBuffer : MonoBehaviour
 
             m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[m_LevelCount - 1]);
 
-            camera_.AddCommandBuffer(m_CameraEvent, m_CommandBuffer);
+            camera.AddCommandBuffer(m_CameraEvent, m_CommandBuffer);
         }
     }
 }
