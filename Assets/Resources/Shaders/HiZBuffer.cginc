@@ -23,7 +23,7 @@ SamplerState sampler_Temporary;
 
 float4 _MainTex_TexelSize;
 
-Varyings vertex(Input input)
+Varyings vertex(in Input input)
 {
     Varyings output;
 
