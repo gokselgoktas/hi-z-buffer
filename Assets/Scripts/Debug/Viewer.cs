@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof (HiZBuffer))]
 public class Viewer : MonoBehaviour
@@ -20,6 +17,7 @@ public class Viewer : MonoBehaviour
             return m_Shader;
         }
     }
+
     private Material m_Material;
     public Material material
     {
