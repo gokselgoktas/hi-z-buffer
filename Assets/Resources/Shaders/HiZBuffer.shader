@@ -1,4 +1,4 @@
-﻿Shader "Hidden/Hi-Z Buffer"
+Shader "Hidden/Hi-Z Buffer"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 [RequireComponent(typeof (HiZBuffer))]
 public class Viewer : MonoBehaviour
