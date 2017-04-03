@@ -12,7 +12,7 @@ Shader "Hidden/Hi-Z Buffer"
         Pass
         {
             CGPROGRAM
-            #pragma target 5.0
+            #pragma target 4.5
             #pragma vertex vertex
             #pragma fragment resolve
             #include "HiZBuffer.cginc"
@@ -22,7 +22,7 @@ Shader "Hidden/Hi-Z Buffer"
         Pass
         {
             CGPROGRAM
-            #pragma target 5.0
+            #pragma target 4.5
             #pragma vertex vertex
             #pragma fragment reduce
             #include "HiZBuffer.cginc"
@@ -32,7 +32,7 @@ Shader "Hidden/Hi-Z Buffer"
         Pass
         {
             CGPROGRAM
-            #pragma target 5.0
+            #pragma target 4.5
             #pragma vertex vertex
             #pragma fragment blit
             #define HI_Z_BLIT_FALL_THROUGH

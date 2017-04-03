@@ -18,6 +18,9 @@ struct Varyings
 Texture2D _MainTex;
 SamplerState sampler_MainTex;
 
+Texture2D _CameraDepthTexture;
+SamplerState sampler_CameraDepthTexture;
+
 Texture2D _Temporary;
 SamplerState sampler_Temporary;
 
@@ -45,13 +48,22 @@ Varyings vertex(in Input input)
 
 float4 resolve(in Varyings input) : SV_Target
 {
-    float depth = _MainTex.Sample(sampler_MainTex, input.uv).r;
+    float depth = _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
     return 1. / (_ZBufferParams.x * depth + _ZBufferParams.y);
 }
 
 float4 reduce(in Varyings input) : SV_Target
 {
-    float4 neighborhood = _MainTex.Gather(sampler_MainTex, input.uv, 0);
+#if SHADER_API_METAL
+    int2 xy = (int2) (input.uv * (_MainTex_TexelSize.zw - 1.));
+
+    float4 neighborhood = float4(
+        _MainTex.mips[0][xy].r, _MainTex.mips[0][xy + int2(1, 0)].r,
+        _MainTex.mips[0][xy + int2(0, 1)].r, _MainTex.mips[0][xy + 1].r);
+#else
+    float4 neighborhood = _MainTex.Gather(sampler_MainTex, input.uv);
+#endif
+
     return min(min(min(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
 }
 

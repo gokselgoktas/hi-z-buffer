@@ -180,7 +180,7 @@ public class HiZBuffer : MonoBehaviour
 
             RenderTargetIdentifier id = new RenderTargetIdentifier(m_HiZ);
 
-            m_CommandBuffer.Blit(BuiltinRenderTextureType.ResolvedDepth, id, material, (int) Pass.Resolve);
+            m_CommandBuffer.Blit(null, id, material, (int) Pass.Resolve);
 
             for (int i = 0; i < m_LevelCount; ++i)
             {
