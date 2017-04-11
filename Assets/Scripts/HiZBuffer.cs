@@ -155,7 +155,7 @@ public class HiZBuffer : MonoBehaviour
             if (m_HiZ != null)
                 m_HiZ.Release();
 
-            m_HiZ = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+            m_HiZ = new RenderTexture(width, height, 0, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear);
             m_HiZ.filterMode = FilterMode.Point;
 
             m_HiZ.useMipMap = true;
