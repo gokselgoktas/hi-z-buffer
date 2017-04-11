@@ -49,7 +49,7 @@ Varyings vertex(in Input input)
 float4 resolve(in Varyings input) : SV_Target
 {
     float depth = _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
-    return 1. / (_ZBufferParams.x * depth + _ZBufferParams.y);
+    return 1. - depth;
 }
 
 float4 reduce(in Varyings input) : SV_Target
