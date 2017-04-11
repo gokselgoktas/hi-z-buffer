@@ -48,8 +48,7 @@ Varyings vertex(in Input input)
 
 float4 resolve(in Varyings input) : SV_Target
 {
-    float depth = _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
-    return 1. - depth;
+    return 1. - _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
 }
 
 float4 reduce(in Varyings input) : SV_Target
