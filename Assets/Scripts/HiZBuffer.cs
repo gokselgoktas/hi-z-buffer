@@ -7,8 +7,7 @@ public class HiZBuffer : MonoBehaviour
     private enum Pass
     {
         Resolve,
-        Reduce,
-        Blit
+        Reduce
     }
 
     private Shader m_Shader;
