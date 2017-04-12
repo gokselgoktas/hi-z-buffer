@@ -110,14 +110,11 @@ public class HiZBuffer : MonoBehaviour
     private CommandBuffer m_CommandBuffer;
     private CameraEvent m_CameraEvent = CameraEvent.BeforeReflections;
 
-    private int m_Temporary;
     private int[] m_Temporaries;
 
     void OnEnable()
     {
         camera.depthTextureMode = DepthTextureMode.Depth;
-
-        m_Temporary = Shader.PropertyToID("_Temporary");
     }
 
     void OnDisable()
@@ -195,16 +192,14 @@ public class HiZBuffer : MonoBehaviour
                 if (height == 0)
                     height = 1;
 
-                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], width, height, 0, FilterMode.Point, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], width, height, 0, FilterMode.Point, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear);
 
                 if (i == 0)
                     m_CommandBuffer.Blit(id, m_Temporaries[0], material, (int) Pass.Reduce);
                 else
                     m_CommandBuffer.Blit(m_Temporaries[i - 1], m_Temporaries[i], material, (int) Pass.Reduce);
 
-                m_CommandBuffer.SetRenderTarget(id, i + 1);
-                m_CommandBuffer.SetGlobalTexture(m_Temporary, m_Temporaries[i]);
-                m_CommandBuffer.DrawMesh(quad, Matrix4x4.identity, material, 0, (int) Pass.Blit, null);
+                m_CommandBuffer.CopyTexture(m_Temporaries[i], 0, 0, id, 0, i + 1);
 
                 if (i >= 1)
                     m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[i - 1]);

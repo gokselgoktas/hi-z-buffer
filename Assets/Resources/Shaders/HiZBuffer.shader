@@ -28,16 +28,5 @@ Shader "Hidden/Hi-Z Buffer"
             #include "HiZBuffer.cginc"
             ENDCG
         }
-
-        Pass
-        {
-            CGPROGRAM
-            #pragma target 4.5
-            #pragma vertex vertex
-            #pragma fragment blit
-            #define HI_Z_BLIT_FALL_THROUGH
-            #include "HiZBuffer.cginc"
-            ENDCG
-        }
     }
 }

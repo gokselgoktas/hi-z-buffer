@@ -21,21 +21,13 @@ SamplerState sampler_MainTex;
 Texture2D _CameraDepthTexture;
 SamplerState sampler_CameraDepthTexture;
 
-Texture2D _Temporary;
-SamplerState sampler_Temporary;
-
 float4 _MainTex_TexelSize;
 
 Varyings vertex(in Input input)
 {
     Varyings output;
 
-#ifndef HI_Z_BLIT_FALL_THROUGH
     output.vertex = UnityObjectToClipPos(input.vertex.xyz);
-#else
-    output.vertex = input.vertex;
-#endif
-
     output.uv = input.uv;
 
 #if UNITY_UV_STARTS_AT_TOP
@@ -64,11 +56,6 @@ float4 reduce(in Varyings input) : SV_Target
 #endif
 
     return min(min(min(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
-}
-
-float4 blit(in Varyings input) : SV_Target
-{
-    return _Temporary.Sample(sampler_Temporary, input.uv);
 }
 
 #endif
