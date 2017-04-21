@@ -40,7 +40,7 @@ Varyings vertex(in Input input)
 
 float4 resolve(in Varyings input) : SV_Target
 {
-    return 1. - _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
+    return _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
 }
 
 float4 reduce(in Varyings input) : SV_Target
@@ -55,7 +55,7 @@ float4 reduce(in Varyings input) : SV_Target
     float4 neighborhood = _MainTex.Gather(sampler_MainTex, input.uv);
 #endif
 
-    return min(min(min(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
+    return max(max(max(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
 }
 
 #endif
