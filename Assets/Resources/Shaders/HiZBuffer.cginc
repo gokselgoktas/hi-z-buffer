@@ -55,7 +55,10 @@ float4 reduce(in Varyings input) : SV_Target
     float4 neighborhood = _MainTex.Gather(sampler_MainTex, input.uv);
 #endif
 
-    return max(max(max(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
+    float minimum = min(min(min(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
+    float maximum = max(max(max(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
+
+    return float4(minimum, maximum, 0., 0.);
 }
 
 #endif

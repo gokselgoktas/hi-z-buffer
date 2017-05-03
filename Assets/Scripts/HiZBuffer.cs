@@ -151,7 +151,7 @@ public class HiZBuffer : MonoBehaviour
             if (m_HiZ != null)
                 m_HiZ.Release();
 
-            m_HiZ = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+            m_HiZ = new RenderTexture(width, height, 0, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
             m_HiZ.filterMode = FilterMode.Point;
 
             m_HiZ.useMipMap = true;
@@ -191,7 +191,7 @@ public class HiZBuffer : MonoBehaviour
                 if (height == 0)
                     height = 1;
 
-                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], width, height, 0, FilterMode.Point, RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
+                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], width, height, 0, FilterMode.Point, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
 
                 if (i == 0)
                     m_CommandBuffer.Blit(id, m_Temporaries[0], material, (int) Pass.Reduce);
