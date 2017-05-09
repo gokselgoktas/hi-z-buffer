@@ -4,7 +4,7 @@ using UnityEngine;
 public class Viewer : MonoBehaviour
 {
     [Range(0, 16)]
-    public int level = 0;
+    public int lod = 0;
 
     private Shader m_Shader;
     public Shader shader
@@ -56,7 +56,7 @@ public class Viewer : MonoBehaviour
             return;
         }
 
-        material.SetInt("_Level", level);
+        material.SetInt("_LOD", lod);
         Graphics.Blit(m_HiZ, destination, material);
     }
 }

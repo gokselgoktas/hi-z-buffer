@@ -25,7 +25,7 @@
 
     float4 _MainTex_TexelSize;
 
-    int _Level;
+    int _LOD;
 
     Varyings vertex(Input input)
     {
@@ -44,7 +44,7 @@
 
     float4 fragment(in Varyings input) : SV_Target
     {
-        return _MainTex.SampleLevel(sampler_MainTex, input.uv, _Level);
+        return _MainTex.SampleLevel(sampler_MainTex, input.uv, _LOD);
     }
     ENDCG
 

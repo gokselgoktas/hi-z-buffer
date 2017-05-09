@@ -94,15 +94,15 @@ public class HiZBuffer : MonoBehaviour
         }
     }
 
-    private int m_LevelCount = 0;
-    public int levelCount
+    private int m_LODCount = 0;
+    public int lodCount
     {
         get
         {
             if (m_HiZ == null)
                 return 0;
 
-            return 1 + m_LevelCount;
+            return 1 + m_LODCount;
         }
     }
 
@@ -139,11 +139,11 @@ public class HiZBuffer : MonoBehaviour
         int width = camera.pixelWidth;
         int height = camera.pixelHeight;
 
-        m_LevelCount = (int) Mathf.Floor(Mathf.Log(Mathf.Max(width, height), 2f));
+        m_LODCount = (int) Mathf.Floor(Mathf.Log(Mathf.Max(width, height), 2f));
 
         bool isCommandBufferInvalid = false;
 
-        if (m_LevelCount == 0)
+        if (m_LODCount == 0)
             return;
 
         if (m_HiZ == null || (m_HiZ.width != width || m_HiZ.height != height))
@@ -166,7 +166,7 @@ public class HiZBuffer : MonoBehaviour
 
         if (m_CommandBuffer == null || isCommandBufferInvalid == true)
         {
-            m_Temporaries = new int[m_LevelCount];
+            m_Temporaries = new int[m_LODCount];
 
             if (m_CommandBuffer != null)
                 camera.RemoveCommandBuffer(m_CameraEvent, m_CommandBuffer);
@@ -178,7 +178,7 @@ public class HiZBuffer : MonoBehaviour
 
             m_CommandBuffer.Blit(null, id, material, (int) Pass.Resolve);
 
-            for (int i = 0; i < m_LevelCount; ++i)
+            for (int i = 0; i < m_LODCount; ++i)
             {
                 m_Temporaries[i] = Shader.PropertyToID("_09659d57_Temporaries" + i.ToString());
 
@@ -204,7 +204,7 @@ public class HiZBuffer : MonoBehaviour
                     m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[i - 1]);
             }
 
-            m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[m_LevelCount - 1]);
+            m_CommandBuffer.ReleaseTemporaryRT(m_Temporaries[m_LODCount - 1]);
 
             camera.AddCommandBuffer(m_CameraEvent, m_CommandBuffer);
         }
