@@ -48,15 +48,20 @@ float4 reduce(in Varyings input) : SV_Target
 #if SHADER_API_METAL
     int2 xy = (int2) (input.uv * (_MainTex_TexelSize.zw - 1.));
 
-    float4 neighborhood = float4(
-        _MainTex.mips[0][xy].r, _MainTex.mips[0][xy + int2(1, 0)].r,
-        _MainTex.mips[0][xy + int2(0, 1)].r, _MainTex.mips[0][xy + 1].r);
+    float4 texels[2] = {
+        float4(_MainTex.mips[0][xy].rg, _MainTex.mips[0][xy + int2(1, 0)].rg),
+        float4(_MainTex.mips[0][xy + int2(0, 1)].rg, _MainTex.mips[0][xy + 1].rg)
+    };
+
+    float4 r = float4(texels[0].rb, texels[1].rb);
+    float4 g = float4(texels[0].ga, texels[1].ga);
 #else
-    float4 neighborhood = _MainTex.Gather(sampler_MainTex, input.uv);
+    float4 r = _MainTex.GatherRed(sampler_MainTex, input.uv);
+    float4 g = _MainTex.GatherGreen(sampler_MainTex, input.uv);
 #endif
 
-    float minimum = min(min(min(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
-    float maximum = max(max(max(neighborhood.x, neighborhood.y), neighborhood.z), neighborhood.w);
+    float minimum = min(min(min(r.x, r.y), r.z), r.w);
+    float maximum = max(max(max(g.x, g.y), g.z), g.w);
 
     return float4(minimum, maximum, 0., 0.);
 }
