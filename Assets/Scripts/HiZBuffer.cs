@@ -4,6 +4,8 @@ using UnityEngine.Rendering;
 [RequireComponent(typeof (Camera))]
 public class HiZBuffer : MonoBehaviour
 {
+    private const int MAXIMUM_BUFFER_SIZE = 2048;
+
     private enum Pass
     {
         Blit,
@@ -136,22 +138,22 @@ public class HiZBuffer : MonoBehaviour
 
     void OnPreRender()
     {
-        int width = camera.pixelWidth;
-        int height = camera.pixelHeight;
+        int size = (int) Mathf.Max((float) camera.pixelWidth, (float) camera.pixelHeight);
+        size = (int) Mathf.Min((float) Mathf.NextPowerOfTwo(size), (float) MAXIMUM_BUFFER_SIZE);
 
-        m_LODCount = (int) Mathf.Floor(Mathf.Log(Mathf.Max(width, height), 2f));
+        m_LODCount = (int) Mathf.Floor(Mathf.Log(size, 2f));
 
         bool isCommandBufferInvalid = false;
 
         if (m_LODCount == 0)
             return;
 
-        if (m_HiZ == null || (m_HiZ.width != width || m_HiZ.height != height))
+        if (m_HiZ == null || (m_HiZ.width != size || m_HiZ.height != size))
         {
             if (m_HiZ != null)
                 m_HiZ.Release();
 
-            m_HiZ = new RenderTexture(width, height, 0, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
+            m_HiZ = new RenderTexture(size, size, 0, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
             m_HiZ.filterMode = FilterMode.Point;
 
             m_HiZ.useMipMap = true;
@@ -182,16 +184,12 @@ public class HiZBuffer : MonoBehaviour
             {
                 m_Temporaries[i] = Shader.PropertyToID("_09659d57_Temporaries" + i.ToString());
 
-                width >>= 1;
-                height >>= 1;
+                size >>= 1;
 
-                if (width == 0)
-                    width = 1;
+                if (size == 0)
+                    size = 1;
 
-                if (height == 0)
-                    height = 1;
-
-                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], width, height, 0, FilterMode.Point, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
+                m_CommandBuffer.GetTemporaryRT(m_Temporaries[i], size, size, 0, FilterMode.Point, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
 
                 if (i == 0)
                     m_CommandBuffer.Blit(id, m_Temporaries[0], material, (int) Pass.Reduce);
