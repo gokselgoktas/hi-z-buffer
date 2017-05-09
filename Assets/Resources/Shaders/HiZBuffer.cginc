@@ -38,7 +38,7 @@ Varyings vertex(in Input input)
     return output;
 }
 
-float4 resolve(in Varyings input) : SV_Target
+float4 blit(in Varyings input) : SV_Target
 {
     return _CameraDepthTexture.Sample(sampler_CameraDepthTexture, input.uv).r;
 }
