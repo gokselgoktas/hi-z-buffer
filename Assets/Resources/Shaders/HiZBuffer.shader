@@ -29,4 +29,29 @@ Shader "Hidden/Hi-Z Buffer"
             ENDCG
         }
     }
+
+    SubShader
+    {
+        Cull Off ZWrite Off ZTest Always
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma target 4.6
+            #pragma vertex vertex
+            #pragma fragment resolve
+            #include "HiZBuffer.cginc"
+            ENDCG
+        }
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma target 4.6
+            #pragma vertex vertex
+            #pragma fragment reduce
+            #include "HiZBuffer.cginc"
+            ENDCG
+        }
+    }
 }
