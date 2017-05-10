@@ -39,7 +39,7 @@ Shader "Hidden/Hi-Z Buffer"
             CGPROGRAM
             #pragma target 4.6
             #pragma vertex vertex
-            #pragma fragment resolve
+            #pragma fragment blit
             #include "HiZBuffer.cginc"
             ENDCG
         }
