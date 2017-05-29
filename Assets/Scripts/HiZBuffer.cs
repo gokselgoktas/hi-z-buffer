@@ -52,41 +52,6 @@ public class HiZBuffer : MonoBehaviour
         }
     }
 
-    private Mesh m_Quad;
-    private Mesh quad
-    {
-        get
-        {
-            if (m_Quad == null)
-            {
-                Vector3[] vertices = new Vector3[4]
-                {
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, -1.0f, 0.0f),
-                    new Vector3(-1.0f, 1.0f, 0.0f),
-                    new Vector3(-1.0f, -1.0f, 0.0f),
-                };
-
-                Vector2[] uv = new Vector2[]
-                {
-                    new Vector2(1, 0),
-                    new Vector2(1, 1),
-                    new Vector2(0, 0),
-                    new Vector2(0, 1),
-                };
-
-                int[] indices = new int[6] { 0, 1, 2, 2, 1, 3 };
-
-                m_Quad = new Mesh();
-                m_Quad.vertices = vertices;
-                m_Quad.uv = uv;
-                m_Quad.triangles = indices;
-            }
-
-            return m_Quad;
-        }
-    }
-
     private RenderTexture m_HiZ;
     public RenderTexture texture
     {
